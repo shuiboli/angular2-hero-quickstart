@@ -19,6 +19,7 @@ import 'rxjs/add/operator/toPromise';
 */
 export class HeroService {
     private heroesUrl = 'app/heroes';  // URL to web api
+    private headers = new Headers({ 'Content-Type': 'application/json' });
 
     constructor(private http: Http) { }
 
@@ -33,7 +34,7 @@ export class HeroService {
         console.error('An error occurred', error); // for demo purposes only
         return Promise.reject(error.message || error);
     }
-    
+
     //模拟慢速连接
     getHeroesSlowly(): Promise<Hero[]> {
         return new Promise<Hero[]>(resolve =>
@@ -44,6 +45,17 @@ export class HeroService {
     getHero(id: number): Promise<Hero> {
         return this.getHeroes()
             .then(heroes => heroes.find(hero => hero.id === id));
+    }
+    /*通过一个编码在URL中的英雄id来告诉服务器应该更新哪个英雄。
+    put的body是该英雄的JSON字符串，它是通过调用JSON.stringify得到的。 
+    并且在请求头中标记出的body的内容类型（application/json） */
+    update(hero: Hero): Promise<Hero> {
+        const url = `${this.heroesUrl}/${hero.id}`;
+        return this.http
+            .put(url, JSON.stringify(hero), { headers: this.headers })
+            .toPromise()
+            .then(() => hero)
+            .catch(this.handleError);
     }
 
 }
