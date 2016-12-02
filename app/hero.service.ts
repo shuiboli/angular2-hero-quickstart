@@ -2,7 +2,9 @@
 
 import { Injectable } from '@angular/core';
 import { Hero } from './hero';
-import { HEROES } from './mock-heroes';
+
+import { Headers, Http } from '@angular/http';
+import 'rxjs/add/operator/toPromise';
 
 //把这个类命名为HeroService，并导出它，以供别人使用。
 
@@ -16,20 +18,32 @@ import { HEROES } from './mock-heroes';
     一旦完成，它就会调用我们的回调函数，并通过参数把工作结果或者错误信息传给我们。
 */
 export class HeroService {
-   //通过返回一个 立即解决的承诺 的方式，模拟了一个超快、零延迟的超级服务器。
+    private heroesUrl = 'app/heroes';  // URL to web api
+
+    constructor(private http: Http) { }
+
+    //通过返回一个 立即解决的承诺 的方式，模拟了一个超快、零延迟的超级服务器。
     getHeroes(): Promise<Hero[]> {
-        return Promise.resolve(HEROES);
+        return this.http.get(this.heroesUrl)
+            .toPromise()
+            .then(response => response.json().data as Hero[])
+            .catch(this.handleError);
     }
+    private handleError(error: any): Promise<any> {
+        console.error('An error occurred', error); // for demo purposes only
+        return Promise.reject(error.message || error);
+    }
+    
     //模拟慢速连接
     getHeroesSlowly(): Promise<Hero[]> {
         return new Promise<Hero[]>(resolve =>
             setTimeout(resolve, 2000)) // delay 2 seconds
             .then(() => this.getHeroes());
     }
-    
+
     getHero(id: number): Promise<Hero> {
         return this.getHeroes()
-                    .then(heroes => heroes.find(hero => hero.id === id));
+            .then(heroes => heroes.find(hero => hero.id === id));
     }
 
 }
