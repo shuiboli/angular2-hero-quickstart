@@ -1,18 +1,6 @@
-import { Component } from '@angular/core';
+import { Component,OnInit } from '@angular/core';
 import { Hero } from './hero';
-
-const HEROES: Hero[] = [
-  { id: 11, name: 'Mr. Nice' },
-  { id: 12, name: 'Narco' },
-  { id: 13, name: 'Bombasto' },
-  { id: 14, name: 'Celeritas' },
-  { id: 15, name: 'Magneta' },
-  { id: 16, name: 'RubberMan' },
-  { id: 17, name: 'Dynama' },
-  { id: 18, name: 'Dr IQ' },
-  { id: 19, name: 'Magma' },
-  { id: 20, name: 'Tornado' }
-];
+import { HeroService } from './hero.service';
 
 @Component({
   selector: 'my-app',
@@ -76,14 +64,35 @@ const HEROES: Hero[] = [
         margin-right: .8em;
         border-radius: 4px 0 0 4px;
       }
-`]
-
+  `],
+  providers: [HeroService]
 })
-export class AppComponent {
+export class AppComponent implements OnInit {
   title = 'Tour of Heroes';
   selectedHero: Hero;
-  heroes = HEROES;
-  onSelect(hero:Hero):void{
+  heroes: Hero[];
+  
+  /*
+    构造函数，定义了一个私有的heroService属性，并标记为注入HeroService的靶点。
+    在创建APPComponent的时候，Angular知道需要先提供一个HeroService的实例。
+    在上面的@Component中最后注册了提供商providers来告诉注入器如何创建HeroService.
+  */
+  constructor(private heroService: HeroService) { }
+  
+  getHeroes(): void {
+    this.heroService.getHeroes().then(heroes => this.heroes = heroes);
+  }
+  /*
+    Angular提供了一些接口，用来介入组件生命周期的几个关键时间点（生命周期钩子）：
+         刚创建时 ngOnInit 
+         每次变化时
+         最终被销毁时    
+  */
+  ngOnInit(): void {
+    this.getHeroes();
+  }
+  onSelect(hero: Hero): void {
     this.selectedHero = hero;
   }
+  
 }
