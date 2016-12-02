@@ -25,8 +25,8 @@ export class HeroService {
 
     //通过返回一个 立即解决的承诺 的方式，模拟了一个超快、零延迟的超级服务器。
     getHeroes(): Promise<Hero[]> {
-        return this.http.get(this.heroesUrl)
-            .toPromise()
+        return this.http.get(this.heroesUrl)  //Http服务中的每个方法都返回一个HTTP Response对象的Observable实例
+            .toPromise()    //把Observable对象转换成了Promise（承诺）返回给调用者
             .then(response => response.json().data as Hero[])
             .catch(this.handleError);
     }
